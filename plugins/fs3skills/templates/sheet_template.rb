@@ -2,11 +2,11 @@ module AresMUSH
   module FS3Skills
     class SheetTemplate < ErbTemplateRenderer
       
-      attr_accessor :char, :client, :section
+      attr_accessor :char, :screen_reader_on, :section
       
-      def initialize(char, client, section = nul)
+      def initialize(char, screen_reader_on, section = nil)
         @char = char
-        @client = client
+        @screen_reader_on = screen_reader_on
         @section = section
         super File.dirname(__FILE__) + "/sheet.erb"
       end
@@ -70,7 +70,7 @@ module AresMUSH
       def use_advantages
         FS3Skills.use_advantages?
       end
-      
+            
       def specialties
         spec = {}
         @char.fs3_action_skills.each do |a|
@@ -85,19 +85,27 @@ module AresMUSH
       end
       
       def format_attr(a, i)
-        name = "%xh#{a.name}:%xn"
         linebreak = i % 2 == 1 ? "" : "%r"
+        if (self.screen_reader_on)
+          return "#{linebreak}#{a.name}: #{a.rating} #{a.rating_name} :: "
+        end
+        name = "%xh#{a.name}:%xn"
         rating_text = "#{a.rating_name}"
-        rating_dots = @client.screen_reader ? a.rating : a.print_rating
+        rating_dots = a.print_rating
         "#{linebreak}#{left(name, 14)} #{left(rating_dots, 8)} #{left(rating_text,16)}"
       end
       
       def format_skill(s, i, show_linked_attr = false)
-        name = "%xh#{s.name}:%xn"
         linked_attr = show_linked_attr ? print_linked_attr(s) : ""
         linebreak = i % 2 == 1 ? "" : "%r"
+        
+        if (self.screen_reader_on)
+          return "#{linebreak}#{s.name}: #{s.rating} #{s.rating_name} #{linked_attr} :: "
+        end
+                
+        name = "%xh#{s.name}:%xn"
         rating_text = "#{s.rating_name}#{linked_attr}"
-        rating_dots = @client.screen_reader ? s.rating : s.print_rating
+        rating_dots = s.print_rating
         "#{linebreak}#{left(name, 14)} #{left(rating_dots, 8)} #{left(rating_text, 16)}"
       end
       
@@ -107,7 +115,7 @@ module AresMUSH
       end
       
       def section_line(title)
-        @client.screen_reader ? title : line_with_text(title)
+        self.screen_reader_on ? title : line_with_text(title)
       end
     end
   end

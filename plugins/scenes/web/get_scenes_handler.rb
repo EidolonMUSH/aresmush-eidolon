@@ -3,10 +3,10 @@ module AresMUSH
     class GetScenesRequestHandler
       def handle(request)
                 
-        filter = request.args[:filter] || "Recent"
-        page = (request.args[:page] || "1").to_i
-        char_name_or_id = request.args[:char_id]
-        plot_id = request.args[:plot_id]
+        filter = request.args['filter'] || "Recent"
+        page = (request.args['page'] || "1").to_i
+        char_name_or_id = request.args['char_id']
+        plot_id = request.args['plot_id']
         
         # Special limited filter for related scenes list
         if (filter == 'Related')
@@ -29,9 +29,9 @@ module AresMUSH
           end
           
           if (filter == 'Recent')
-            scenes = plot.sorted_scenes.reverse[0..20].select { |s| s.shared }
+            scenes = plot.sorted_scenes.reverse[0..20]
           else
-            scenes = plot.sorted_scenes.reverse.select { |s| s.shared }
+            scenes = plot.sorted_scenes.reverse
           end
           
         elsif (char_name_or_id)

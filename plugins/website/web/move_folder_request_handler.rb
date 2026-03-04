@@ -6,9 +6,9 @@ module AresMUSH
     class MoveFolderRequestHandler
       def handle(request)
         enactor = request.enactor
-        folder = request.args[:folder]
-        new_folder = (request.args[:new_folder] || "").downcase
-        files = request.args[:files] || []
+        folder = request.args['folder']
+        new_folder = (request.args['new_folder'] || "").downcase
+        files = request.args['files'] || []
 
         error = Website.check_login(request)
         return error if error
@@ -18,18 +18,22 @@ module AresMUSH
         if (!Website.can_edit_wiki_file?(enactor, folder))
           return { error: t('dispatcher.not_allowed') }
         end
+                
+        if (new_folder.include?("/"))
+          return { error: t('webportal.subfolders_not_allowed') }
+        end
         
         new_folder = AresMUSH::Website::FilenameSanitizer.sanitize new_folder
         
         folder_path = File.join(AresMUSH.website_uploads_path, folder)
         new_folder_path = File.join(AresMUSH.website_uploads_path, new_folder)
         
-        if (!File.exists?(folder_path))
+        if (!File.exist?(folder_path))
           return { error: t('webportal.not_found') }
         end
         
         if (new_folder.blank? || files.empty?)
-          return { error: t('webportal.missing_required_fields') }
+          return { error: t('webportal.missing_required_fields', :fields => "folder, file") }
         end
         
         if (folder == "theme_images" && !enactor.is_admin?)

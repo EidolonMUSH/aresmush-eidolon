@@ -4,12 +4,12 @@ module AresMUSH
     class FileUploadRequestHandler
       def handle(request)
         enactor = request.enactor
-        name = (request.args[:name] || "").downcase
-        description = request.args[:description]
-        allow_overwrite = request.args[:allow_overwrite] ? request.args[:allow_overwrite] : false
-        folder = (request.args[:folder] || "").downcase
-        size_kb = (request.args[:size_kb] || "").to_i
-        data = request.args[:data]
+        name = (request.args['name'] || "").downcase
+        description = request.args['description']
+        allow_overwrite = (request.args['allow_overwrite'] || "").to_bool
+        folder = (request.args['folder'] || "").downcase
+        size_kb = (request.args['size_kb'] || "").to_i
+        data = request.args['data']
         
         error = Website.check_login(request)
         return error if error
@@ -17,7 +17,11 @@ module AresMUSH
         Global.logger.info "#{enactor.name} uploading file #{name}."
         
         if (name.blank? || folder.blank?)
-          return { error: t('webportal.missing_required_fields') }
+          return { error: t('webportal.missing_required_fields', :fields => "name, folder") }
+        end
+        
+        if (folder.include?("/"))
+          return { error: t('webportal.subfolders_not_allowed') }
         end
         
         is_wiki_admin = Website.can_manage_wiki?(enactor)
@@ -64,7 +68,7 @@ module AresMUSH
         
         path = File.join(folder_path, name)
         
-        if (File.exists?(path) && !allow_overwrite)
+        if (File.exist?(path) && !allow_overwrite)
           return { error: t('webportal.file_already_exists')  }
         end
         

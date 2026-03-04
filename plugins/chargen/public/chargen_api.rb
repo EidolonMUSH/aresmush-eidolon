@@ -87,6 +87,7 @@ module AresMUSH
       end
     end    
       
+    # Approved AND active - won't count npcs, rosters, dead, etc.
     def self.approved_chars
       Idle.active_chars.select { |c| c.is_approved? }
     end
@@ -94,6 +95,7 @@ module AresMUSH
     def self.welcome_message_args(model)
       args = { 
         name: model.name, 
+        nick: model.nick,
         rp_hooks: model.rp_hooks || t('global.none'),
         profile_link: "#{Game.web_portal_url}/char/#{model.name}",
         position: '',
@@ -133,12 +135,24 @@ module AresMUSH
     end
     
     def self.save_web_profile_data(char, enactor, args)
-      char.update(rp_hooks: Website.format_input_for_mush(args[:rp_hooks]))
-      char.update(bg_shared: args[:bg_shared].to_bool)
+      char.update(rp_hooks: Website.format_input_for_mush(args['rp_hooks']))
+      char.update(bg_shared: args['bg_shared'].to_bool)
       if (Chargen.can_manage_bgs?(enactor))
-        char.update(cg_background: Website.format_input_for_mush(args[:background]))
+        char.update(cg_background: Website.format_input_for_mush(args['background']))
       end
       return nil
     end
+    
+    def self.export_bg(char)
+      template = BorderedDisplayTemplate.new char.rp_hooks, t('chargen.hooks_title', :name => char.name)
+      output = template.render
+      
+      template = BorderedDisplayTemplate.new char.background, t('chargen.background_title', :name => char.name)
+      output << "%R%R"
+      output << template.render
+    
+      output
+    end
+    
   end
 end

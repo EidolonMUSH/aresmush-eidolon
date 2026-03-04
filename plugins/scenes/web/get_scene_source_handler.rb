@@ -2,8 +2,8 @@ module AresMUSH
   module Scenes
     class GetSceneSourceRequestHandler
       def handle(request)
-        scene_id = request.args[:scene_id]
-        version_id = request.args[:version_id]
+        scene_id = request.args['scene_id']
+        version_id = request.args['version_id']
         enactor = request.enactor
         
         error = Website.check_login(request, true)
@@ -13,7 +13,11 @@ module AresMUSH
         if (!scene)
           return { error: t('webportal.not_found') }
         end
-        
+
+        if (!scene.shared)
+          return { error: t('scenes.scene_not_shared') }
+        end
+	
         version = SceneLog[version_id]
         if (!version)
           return { error: t('webportal.not_found') }

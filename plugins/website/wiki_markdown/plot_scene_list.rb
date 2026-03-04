@@ -45,27 +45,16 @@ module AresMUSH
         end
         
         if (char)
-          matches = plot.sorted_scenes.select { |s| s.shared && s.participants.include?(char) }
+          matches = plot.sorted_scenes.select { |s| s.participants.include?(char) }
         else
-          matches = plot.sorted_scenes.select { |s| s.shared }
+          matches = plot.sorted_scenes
         end
           
         Global.logger.debug("Plot scene list for plot=#{plot_id} char=#{char_name} matches=#{matches.count}")
-          
-        template = HandlebarsTemplate.new(File.join(AresMUSH.plugin_path, 'website', 'templates', 'scene_list.hbs'))
 
-        data = {
-          "scenes" => matches.sort_by { |m| m.icdate || m.created_at }.map { |m| 
-            { 
-              id: m.id, 
-              title: m.date_title, 
-              summary: Website.format_markdown_for_html(m.summary), 
-              participant_names: m.participant_names
-            } 
-          }
-        }
-        
-        template.render(data)
+        scenes = matches.sort_by { |m| m.icdate || m.created_at }        
+        template = SceneListtExtensionTemplate.new(scenes)
+        template.render
       end
     end
   end

@@ -60,6 +60,9 @@ en:
         channel_reported_title: "Channel Reported"
         channel_reported: "Thank you.  A report has been created using the channel log as evidence."
         
+        channel_flagged_body: "%{reporter} has flagged the following message on the %{name} channel. It is hidden from non-admins on the channel."
+        channel_flagged_title: "Chat Message Flagged"
+        
         char_added_to_channel: "You add %{char} to channel %{channel}."
         char_removed_from_channel: "You remove %{char} from channel %{channel}."
         force_added: "You have been added to channel %{channel} by %{char}."

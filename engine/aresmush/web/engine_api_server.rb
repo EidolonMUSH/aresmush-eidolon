@@ -79,7 +79,7 @@ module AresMUSH
 
      def handle_request
        AresMUSH.with_error_handling(nil, "Web Request") do
-         web_request = WebRequest.new(params)
+         web_request = WebRequest.new(JSON.parse(request.body.read))
          web_request.ip_addr = request.ip
          web_request.hostname = Client.lookup_hostname(request.ip)
          if (!web_request.check_api_key)
@@ -95,8 +95,8 @@ module AresMUSH
      def handle_webhook
        AresMUSH.with_error_handling(nil, "Web Request") do
          request_params = {
-           cmd: 'webhook',
-           args: JSON.parse(request.body.read)
+           "cmd" => 'webhook',
+           "args" => JSON.parse(request.body.read)
          }
          web_request = WebRequest.new(request_params)
          web_request.ip_addr = request.ip
